@@ -4,7 +4,7 @@ using System.Data;
 
 namespace GraphQL_Learning.Models
 {
-    [Index(nameof(Name), IsUnique = true]
+    [Index(nameof(Name), IsUnique = true)]
     public class Author
     {
         public int Id { get; set; }
