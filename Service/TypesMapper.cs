@@ -2,7 +2,13 @@
 
 namespace GraphQL_Learning.Service
 {
-    public class ServiceMapper
+    /// <summary>
+    /// Mapper de tipos, esta clase permite obtener un listado de tipos específico
+    /// usando reflexión.
+    /// 
+    /// Esto es útil para evitar registrar servicios manualmente
+    /// </summary>
+    public class TypesMapper
     {
         public static Type[] GetServiceTypes()
         {
