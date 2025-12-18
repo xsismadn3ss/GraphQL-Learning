@@ -10,7 +10,7 @@ namespace GraphQL_Learning.Service
 
         public AuthorService(AppDbContext context)
         {
-            _context = context; 
+            _context = context;
         }
 
         public async Task<Author?> GetAuthorAsync(int id)
@@ -26,27 +26,43 @@ namespace GraphQL_Learning.Service
 
         public async Task<Author> AddAuthorAsync(AddAuthorInput input)
         {
-            Author author = new()
+            try
             {
-                Name = input.Name
-            };
-            await _context.Authors.AddAsync(author);
-            await _context.SaveChangesAsync();
-            return author;
+                Author author = new()
+                {
+                    Name = input.Name
+                };
+                await _context.Authors.AddAsync(author);
+                await _context.SaveChangesAsync();
+                return author;
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
+                                              ex.InnerException?.Message.Contains("IX_") == true)
+            {
+                throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
+            }
         }
 
         public async Task<Author?> UpdateAuthorAsync(UpdateAuthorInput input)
         {
             Author? author = await _context.Authors.FindAsync(input.id);
-            
+
             if (author == null) return null;
-            if (!string.IsNullOrEmpty(author.Name))
+            try
             {
-                author.Name = input.Name;
-                author.UpdatedAt = DateTime.Now;
+                if (!string.IsNullOrEmpty(author.Name))
+                {
+                    author.Name = input.Name;
+                    author.UpdatedAt = DateTime.Now;
+                }
+                await _context.SaveChangesAsync();
+                return author;
             }
-            await _context.SaveChangesAsync();
-            return author;
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
+                                              ex.InnerException?.Message.Contains("IX_") == true)
+            {
+                throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
+            }
         }
 
         public async Task<bool> DeleteAuthorAsync(int id)

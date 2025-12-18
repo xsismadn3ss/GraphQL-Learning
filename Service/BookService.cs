@@ -26,53 +26,69 @@ namespace GraphQL_Learning.Service
 
         public async Task<Book> AddBookAsync(AddBookInput input)
         {
-            Book book = new()
+            try
             {
-                Title = input.Title,
-                PublishedOn = input.PublishedOn,
-                AuthorId = input.AuthorId
-            };
-            await _context.Books.AddAsync(book);
-            await _context.SaveChangesAsync();
-            return book;
+                Book book = new()
+                {
+                    Title = input.Title,
+                    PublishedOn = input.PublishedOn,
+                    AuthorId = input.AuthorId
+                };
+                await _context.Books.AddAsync(book);
+                await _context.SaveChangesAsync();
+                return book;
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
+                                                ex.InnerException?.Message.Contains("IX_") == true)
+            {
+                throw new InvalidOperationException("UNIQUE_CONSTRAINT_ERROR");
+            }
         }
 
         public async Task<Book?> UpdateBookAsync(UpdateBookInput input)
         {
             Book? book = await _context.Books.FindAsync(input.Id);
-            
-            if(book == null)
+
+            if (book == null)
                 return null;
 
-            bool updated = false;
-          
-            if(!string.IsNullOrEmpty(input.Title))
+            try
             {
-                book.Title = book.Title;
-                updated = true;
+                bool updated = false;
+
+                if (!string.IsNullOrEmpty(input.Title))
+                {
+                    book.Title = book.Title;
+                    updated = true;
+                }
+                if (input.AuthorId.HasValue)
+                {
+                    book.AuthorId = input.AuthorId.Value;
+                    updated = true;
+                }
+                if (input.PublishedOn.HasValue)
+                {
+                    book.PublishedOn = input.PublishedOn.Value;
+                    updated = true;
+                }
+                if (updated)
+                {
+                    book.UpdatedAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+                }
+                return book;
             }
-            if (input.AuthorId.HasValue)
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
+                                                ex.InnerException?.Message.Contains("IX_") == true)
             {
-                book.AuthorId = input.AuthorId.Value;
-                updated = true;
+                throw new InvalidOperationException("UNIQUE_CONSTRAINT_ERROR");
             }
-            if (input.PublishedOn.HasValue)
-            {
-                book.PublishedOn = input.PublishedOn.Value;
-                updated = true;
-            }
-            if(updated)
-            {
-                book.UpdatedAt = DateTime.Now;
-                await _context.SaveChangesAsync();
-            }
-            return book;
         }
 
         public async Task<bool> DeleteBookAsync(int id)
         {
             Book? book = await _context.Books.FindAsync(id);
-            if(book == null) return false;
+            if (book == null) return false;
             book.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
