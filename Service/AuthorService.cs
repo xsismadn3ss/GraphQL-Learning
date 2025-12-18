@@ -1,5 +1,6 @@
 ﻿using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphQL_Learning.Service
@@ -37,7 +38,7 @@ namespace GraphQL_Learning.Service
                 return author;
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
-                                              ex.InnerException?.Message.Contains("IX_") == true)
+                                            ex.InnerException?.Message.Contains("IX_") == true)
             {
                 throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
             }
@@ -59,7 +60,7 @@ namespace GraphQL_Learning.Service
                 return author;
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
-                                              ex.InnerException?.Message.Contains("IX_") == true)
+                                        ex.InnerException?.Message.Contains("IX_") == true)
             {
                 throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
             }
