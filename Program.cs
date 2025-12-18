@@ -33,8 +33,8 @@ Type[] types = [..TypesMapper.GetQueriesTypes()
 // Configurar GraphQL
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType(q => q.Name("query"))
-    .AddMutationType(m => m.Name("query"))
+    .AddQueryType(q => q.Name("Query"))
+    .AddMutationType(m => m.Name("Mutation"))
     .AddTypes(types)
     .AddFiltering()
     .AddSorting()
