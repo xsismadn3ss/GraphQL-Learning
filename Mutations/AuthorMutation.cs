@@ -14,7 +14,7 @@ namespace GraphQL_Learning.Mutation
                 return authorService.AddAuthorAsync(input);
             } catch (Exception ex)
             {
-                if(ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE"))
+                if(ex.Message != null && ex.Message.Contains("UNIQUE"))
                 {
                     throw new GraphQLException(ErrorBuilder
                         .New()
@@ -45,7 +45,7 @@ namespace GraphQL_Learning.Mutation
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("UNIQUE"))
+                if (ex.Message != null && ex.Message.Contains("UNIQUE"))
                 {
                     throw new GraphQLException(ErrorBuilder
                         .New()
@@ -55,7 +55,7 @@ namespace GraphQL_Learning.Mutation
                 }
                 throw new GraphQLException(ErrorBuilder
                     .New()
-                    .SetMessage("Hay ocurrido un error inesperado")
+                    .SetMessage("Ha ocurrido un error inesperado")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }

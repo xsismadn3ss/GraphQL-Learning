@@ -18,11 +18,19 @@ namespace GraphQL_Learning.Mutation
             {
                 return await bookService.AddBookAsync(input);
             }
-            catch (InvalidOperationException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true)
+            catch (Exception ex)
             {
+                if (ex.Message.Contains("UNIQUE"))
+                {
+                    throw new GraphQLException(ErrorBuilder
+                        .New()
+                        .SetMessage("Ya existe un libro con este titutlo")
+                        .SetExtension("timestamp", DateTime.Now)
+                        .Build());
+                }
                 throw new GraphQLException(ErrorBuilder
                     .New()
-                    .SetMessage("Ya existe un libro con este titutlo")
+                    .SetMessage("Ha ocurrido un error inespedado")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
@@ -42,11 +50,19 @@ namespace GraphQL_Learning.Mutation
             {
                 return await bookService.UpdateBookAsync(input);
             }
-            catch (InvalidOperationException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true)
+            catch (Exception ex)
             {
+                if (ex.Message.Contains("UNIQUE"))
+                {
+                    throw new GraphQLException(ErrorBuilder
+                        .New()
+                        .SetMessage("Ya existe un libro con este titutlo")
+                        .SetExtension("timestamp", DateTime.Now)
+                        .Build());
+                }
                 throw new GraphQLException(ErrorBuilder
                     .New()
-                    .SetMessage("Ya existe un libro con este titutlo")
+                    .SetMessage("Ha ocurrido un error inespedado")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
