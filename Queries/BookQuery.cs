@@ -7,9 +7,9 @@ namespace GraphQL_Learning.Queries
     public class BookQuery
     {
         [UsePaging]
-        [UseSorting]
-        [UseFiltering]
         [UseProjection]
+        [UseFiltering]
+        [UseSorting]
         public IQueryable<Book> GetBooks([Service] BookService bookService)
             => bookService.GetBooks();
 

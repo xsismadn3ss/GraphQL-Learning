@@ -7,9 +7,9 @@ namespace GraphQL_Learning.Queries
     public class AuthorQuery
     {
         [UsePaging]
-        [UseSorting]
-        [UseFiltering]
         [UseProjection]
+        [UseFiltering]
+        [UseSorting]
         public IQueryable<Author> GetAuthors([Service] AuthorService authorService)
             => authorService.GetAuthors();
 
