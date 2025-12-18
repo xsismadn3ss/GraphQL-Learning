@@ -37,11 +37,9 @@ namespace GraphQL_Learning.Service
 
         public async Task<Author?> UpdateAuthorAsync(UpdateAuthorInput input)
         {
-            Author? author = _context.Authors.FindAsync(input.id);
-            if (author == null) { 
-                return null
-            }
-
+            Author? author = await _context.Authors.FindAsync(input.id);
+            
+            if (author == null) return null;
             if (!string.IsNullOrEmpty(author.Name))
             {
                 author.Name = input.Name;
@@ -51,13 +49,10 @@ namespace GraphQL_Learning.Service
             return author;
         }
 
-        public Task<bool> DeleteAuthorAsync(int id)
+        public async Task<bool> DeleteAuthorAsync(int id)
         {
             Author? author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return false;
-            }
+            if (author == null) return false;
             author.IsActive = false;
             await _context.SaveChangesAsync();
             return true;
