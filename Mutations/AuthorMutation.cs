@@ -33,7 +33,7 @@ namespace GraphQL_Learning.Mutation
         public async Task<Author?> UpdateAuthor(UpdateAuthorInput input, [Service] AuthorService authorService)
         {
             // validar si existe el author
-            var _ = await authorService.GetAuthorAsync(input.id) ?? throw new GraphQLException(ErrorBuilder
+            var _ = await authorService.GetAuthorAsync(input.Id) ?? throw new GraphQLException(ErrorBuilder
                 .New()
                 .SetMessage("Author Not Found")
                 .SetExtension("timestamp", DateTime.Now)

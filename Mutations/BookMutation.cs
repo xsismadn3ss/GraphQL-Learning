@@ -15,7 +15,7 @@ namespace GraphQL_Learning.Mutation
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             try
-            {
+            { 
                 return await bookService.AddBookAsync(input);
             }
             catch (Exception ex)
