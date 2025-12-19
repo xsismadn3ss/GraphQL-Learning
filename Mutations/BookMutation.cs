@@ -1,4 +1,5 @@
-﻿using GraphQL_Learning.Models;
+﻿using GraphQL_Learning.Exceptions;
+using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
 using GraphQL_Learning.Service;
 
@@ -12,25 +13,18 @@ namespace GraphQL_Learning.Mutation
             var _ = await authorService.GetAuthorAsync(input.AuthorId) ?? throw new GraphQLException(ErrorBuilder
                     .New()
                     .SetMessage("Author not found")
+                    .SetCode("AUTHOR_NOT_FOUND_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             try
             { 
                 return await bookService.AddBookAsync(input);
             }
-            catch (Exception ex)
+            catch(DuplicateEntityException duplicateEx)
             {
-                if (ex.Message.Contains("UNIQUE"))
-                {
-                    throw new GraphQLException(ErrorBuilder
-                        .New()
-                        .SetMessage("Ya existe un libro con este titutlo")
-                        .SetExtension("timestamp", DateTime.Now)
-                        .Build());
-                }
-                throw new GraphQLException(ErrorBuilder
-                    .New()
-                    .SetMessage("Ha ocurrido un error inespedado")
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(duplicateEx.Message)
+                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
@@ -43,6 +37,7 @@ namespace GraphQL_Learning.Mutation
                 var _ = await authorService.GetAuthorAsync(input.AuthorId.Value) ?? throw new GraphQLException(ErrorBuilder
                     .New()
                     .SetMessage("Author not found")
+                    .SetCode("AUTHOR_NOT_FOUND_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
@@ -50,19 +45,19 @@ namespace GraphQL_Learning.Mutation
             {
                 return await bookService.UpdateBookAsync(input);
             }
-            catch (Exception ex)
+            catch (DuplicateEntityException duplicateEx)
             {
-                if (ex.Message.Contains("UNIQUE"))
-                {
-                    throw new GraphQLException(ErrorBuilder
-                        .New()
-                        .SetMessage("Ya existe un libro con este titutlo")
-                        .SetExtension("timestamp", DateTime.Now)
-                        .Build());
-                }
-                throw new GraphQLException(ErrorBuilder
-                    .New()
-                    .SetMessage("Ha ocurrido un error inespedado")
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(duplicateEx.Message)
+                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
+                    .SetExtension("timestamp", DateTime.Now)
+                    .Build());
+            }
+            catch (NotFoundException notFoundEx)
+            {
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(notFoundEx.Message)
+                    .SetCode("BOOK_NOT_FOUND_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }

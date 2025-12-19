@@ -1,4 +1,5 @@
-﻿using GraphQL_Learning.Models;
+﻿using GraphQL_Learning.Exceptions;
+using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
 using GraphQL_Learning.Service;
 
@@ -12,19 +13,12 @@ namespace GraphQL_Learning.Mutation
             try
             {
                 return authorService.AddAuthorAsync(input);
-            } catch (Exception ex)
+            }
+            catch (DuplicateEntityException duplicateEx)
             {
-                if(ex.Message != null && ex.Message.Contains("UNIQUE"))
-                {
-                    throw new GraphQLException(ErrorBuilder
-                        .New()
-                        .SetMessage("Ya existe un autor con este nombre")
-                        .SetExtension("timestamp", DateTime.Now)
-                        .Build());
-                }
-                throw new GraphQLException(ErrorBuilder
-                    .New()
-                    .SetMessage("Hay ocurrido un error inesperado")
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(duplicateEx.Message)
+                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
@@ -32,30 +26,23 @@ namespace GraphQL_Learning.Mutation
 
         public async Task<Author?> UpdateAuthor(UpdateAuthorInput input, [Service] AuthorService authorService)
         {
-            // validar si existe el author
-            var _ = await authorService.GetAuthorAsync(input.Id) ?? throw new GraphQLException(ErrorBuilder
-                .New()
-                .SetMessage("Author Not Found")
-                .SetExtension("timestamp", DateTime.Now)
-                .Build());
-
             try
             {
                 return await authorService.UpdateAuthorAsync(input);
             }
-            catch (Exception ex)
+            catch (DuplicateEntityException duplicateEx)
             {
-                if (ex.Message != null && ex.Message.Contains("UNIQUE"))
-                {
-                    throw new GraphQLException(ErrorBuilder
-                        .New()
-                        .SetMessage("Ya existe un autor con este nombre")
-                        .SetExtension("timestamp", DateTime.Now)
-                        .Build());
-                }
-                throw new GraphQLException(ErrorBuilder
-                    .New()
-                    .SetMessage("Ha ocurrido un error inesperado")
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(duplicateEx.Message)
+                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
+                    .SetExtension("timestamp", DateTime.Now)
+                    .Build());
+            }
+            catch (NotFoundException notFoundEx)
+            {
+                throw new GraphQLException(ErrorBuilder.New()
+                    .SetMessage(notFoundEx.Message)
+                    .SetCode("AUTHOR_NOT_FOUND_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
