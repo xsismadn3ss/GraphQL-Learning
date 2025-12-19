@@ -14,8 +14,9 @@ namespace GraphQL_Learning.Models.Input
         public int AuthorId { get; set; }
     }
     public record class UpdateBookInput{
+        [Required]
         [Range(1, int.MaxValue)]
-        public int? Id {  get; set; }
+        public int Id {  get; set; }
         [StringLength(250, MinimumLength = 5)]
         public String? Title { get; set; } = string.Empty;
         public DateOnly? PublishedOn { get; set; }
