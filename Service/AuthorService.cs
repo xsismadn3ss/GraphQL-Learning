@@ -1,6 +1,6 @@
-﻿using GraphQL_Learning.Models;
+﻿using GraphQL_Learning.Exceptions;
+using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphQL_Learning.Service
@@ -15,55 +15,49 @@ namespace GraphQL_Learning.Service
         }
 
         public async Task<Author?> GetAuthorAsync(int id)
-        {
-            return await _context.Authors.Include(a => a.Books)
+            => await _context.Authors.Include(a => a.Books)
                 .Where(a => a.Id == id).FirstOrDefaultAsync();
-        }
 
         public IQueryable<Author> GetAuthors()
-        {
-            return _context.Authors.Include(a => a.Books);
-        }
+            => _context.Authors.Include(a => a.Books);
 
         public async Task<Author> AddAuthorAsync(AddAuthorInput input)
         {
-            try
+            var existingAuthor = await _context.Authors
+                .FirstOrDefaultAsync(a => a.Name == input.Name);
+            if (existingAuthor != null)
             {
-                Author author = new()
-                {
-                    Name = input.Name
-                };
-                await _context.Authors.AddAsync(author);
-                await _context.SaveChangesAsync();
-                return author;
+                throw new DuplicateEntityException("An Author witn the same name already exists.");
             }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
-                                            ex.InnerException?.Message.Contains("IX_") == true)
+
+            Author author = new()
             {
-                throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
-            }
+                Name = input.Name
+            };
+            await _context.Authors.AddAsync(author);
+            await _context.SaveChangesAsync();
+            return author;
         }
 
         public async Task<Author?> UpdateAuthorAsync(UpdateAuthorInput input)
         {
-            Author? author = await _context.Authors.FindAsync(input.Id);
+            Author? author = await GetAuthorAsync(input.Id) ?? throw new NotFoundException("Author not found");
 
-            if (author == null) return null;
-            try
+            var existingAuthor = await _context.Authors
+                .FirstOrDefaultAsync(a => a.Name == input.Name && a.Id != input.Id);
+            if (existingAuthor != null && existingAuthor.Name == input.Name)
             {
-                if (!string.IsNullOrEmpty(author.Name))
-                {
-                    author.Name = input.Name;
-                    author.UpdatedAt = DateTime.Now;
-                }
+                throw new DuplicateEntityException($"Author {existingAuthor.Name} already exists");
+            }
+
+            if (!string.IsNullOrEmpty(input.Name) && author.Name != input.Name)
+            {
+                author.Name = input.Name;
+                author.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
                 return author;
             }
-            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("UNIQUE") == true ||
-                                        ex.InnerException?.Message.Contains("IX_") == true)
-            {
-                throw new InvalidOperationException("UNIQUE_CONTRAINT_ERROR");
-            }
+            return null;
         }
 
         public async Task<bool> DeleteAuthorAsync(int id)
