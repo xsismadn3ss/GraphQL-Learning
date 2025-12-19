@@ -46,7 +46,7 @@ namespace GraphQL_Learning.Service
 
         public async Task<Author?> UpdateAuthorAsync(UpdateAuthorInput input)
         {
-            Author? author = await _context.Authors.FindAsync(input.id);
+            Author? author = await _context.Authors.FindAsync(input.Id);
 
             if (author == null) return null;
             try
