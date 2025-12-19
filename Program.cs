@@ -1,6 +1,7 @@
 using GraphQL_Learning.Models;
 using GraphQL_Learning.Service;
 using Microsoft.EntityFrameworkCore;
+using GraphQL_Learning.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ Type[] types = [..TypesMapper.GetQueriesTypes()
     .Union(TypesMapper.GetMutationsTypes()
     .Union(TypesMapper.GetSubscriptionsTypes()))];
 
-Console.WriteLine("Tipos GraphQL indentificados: ");
+Console.WriteLine("Tipos GraphQL indentificados:");
 foreach (var t in types)
 {
     Console.ForegroundColor= ConsoleColor.Green;
@@ -49,6 +50,7 @@ Console.WriteLine();
 // Configurar GraphQL
 builder.Services
     .AddGraphQLServer()
+    .UseField<ValidationMiddleware>()
     .AddQueryType(q => q.Name("Query"))
     .AddMutationType(m => m.Name("Mutation"))
     .AddTypes(types)
