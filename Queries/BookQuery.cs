@@ -6,7 +6,7 @@ namespace GraphQL_Learning.Queries
     [ExtendObjectType("Query")]
     public class BookQuery
     {
-        [UsePaging]
+        [UsePaging(DefaultPageSize = 10, IncludeTotalCount = true, MaxPageSize = 100)]
         [UseProjection]
         [UseFiltering]
         [UseSorting]
