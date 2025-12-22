@@ -23,7 +23,7 @@ namespace GraphQL_Learning.Services
         public async Task<CredentialsAuthOutput> LoginAsync(LoginAuthInput input)
         {
             User? user = null;
-            if(!string.IsNullOrEmpty(input.Username) && string.IsNullOrEmpty(input.Email))
+            if (!string.IsNullOrEmpty(input.Username) && string.IsNullOrEmpty(input.Email))
             {
                 user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == input.Username);
             }
@@ -33,14 +33,13 @@ namespace GraphQL_Learning.Services
             }
             else
             {
-                throw new InvalidOperationException("No ex permitido ingresar email y username al mismo tiempo. Inicia sesión solo con email o username");
+                throw new InvalidOperationException("No es permitido ingresar email y username al mismo tiempo. Inicia sesión solo con email o username");
             }
             if (user == null) throw new NotFoundException("User not found");
 
             // validar password
             var result = _passwordHasher.VerifyHashedPassword(null, user.Password, input.Password);
-            // TODO: crear excepcion para credenciales incorrectas
-            if (result == PasswordVerificationResult.Failed) throw new InvalidOperationException("Contraseña incorrecta");
+            if (result == PasswordVerificationResult.Failed) throw new InvalidCredentialsException("Contraseña incorrecta");
 
             // generar token
             var token = _jwtService.GenerateToken(user.Username, user.Role.Name);
@@ -55,7 +54,7 @@ namespace GraphQL_Learning.Services
         {
             // validar si ya existe un usuario con mismo email o username
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == input.Username || u.Email == u.Email);
-            if(existingUser?.Username == input.Username) throw new DuplicateEntityException("El nombre de usuario ya esta ocupado");
+            if (existingUser?.Username == input.Username) throw new DuplicateEntityException("El nombre de usuario ya esta ocupado");
             if (existingUser?.Email == input.Email) throw new DuplicateEntityException("El email ya esta ocupado");
 
             // guardar usuario
