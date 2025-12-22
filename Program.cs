@@ -1,5 +1,5 @@
 using GraphQL_Learning.Models;
-using GraphQL_Learning.Service;
+using GraphQL_Learning.Services;
 using Microsoft.EntityFrameworkCore;
 using GraphQL_Learning.Middleware;
 
@@ -16,15 +16,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Agregar servicios al contenedor.
 
 // registrar servicios dinamicamente
-Console.WriteLine("\nServicios registrados:");
 foreach (var type in TypesMapper.GetServiceTypes())
 {
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine(type.Name);
-    Console.ForegroundColor = ConsoleColor.White;
     builder.Services.AddScoped(type);
 }
-Console.WriteLine();
 
 // Configurar Db Context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -32,19 +27,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     ServiceLifetime.Scoped);
 
 
-// Obtener tipos GraphQL
+// Obtener tipos GraphQL dinamicamente
 Type[] types = [..TypesMapper.GetQueriesTypes()
     .Union(TypesMapper.GetMutationsTypes()
     .Union(TypesMapper.GetSubscriptionsTypes()))];
-
-Console.WriteLine("Tipos GraphQL indentificados:");
-foreach (var t in types)
-{
-    Console.ForegroundColor= ConsoleColor.Green;
-    Console.WriteLine(t.Name); 
-    Console.ForegroundColor = ConsoleColor.White;
-}
-Console.WriteLine();
 
 
 // Configurar GraphQL
@@ -55,7 +41,7 @@ builder.Services
     .AddMutationType(m => m.Name("Mutation"))
     .AddSubscriptionType(s => s.Name("Subscription"))
     .AddInMemorySubscriptions()
-    .AddTypes(types)
+    .AddTypes(types) // añadir tipos
     .AddFiltering()
     .AddSorting()
     .AddProjections()

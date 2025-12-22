@@ -1,7 +1,7 @@
 ﻿using GraphQL_Learning.Exceptions;
 using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
-using GraphQL_Learning.Service;
+using GraphQL_Learning.Services;
 using HotChocolate.Subscriptions;
 
 namespace GraphQL_Learning.Mutations

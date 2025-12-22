@@ -1,5 +1,5 @@
 ﻿using GraphQL_Learning.Models;
-using GraphQL_Learning.Service;
+using GraphQL_Learning.Services;
 
 namespace GraphQL_Learning.Queries
 {
