@@ -3,7 +3,7 @@ using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
 using Microsoft.EntityFrameworkCore;
 
-namespace GraphQL_Learning.Service
+namespace GraphQL_Learning.Services
 {
     public class BookService
     {

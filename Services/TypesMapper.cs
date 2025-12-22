@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace GraphQL_Learning.Service
+﻿namespace GraphQL_Learning.Services
 {
     /// <summary>
     /// Mapper de tipos, esta clase permite obtener un listado de tipos específico
