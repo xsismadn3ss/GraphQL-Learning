@@ -38,12 +38,17 @@ Type[] types = [..TypesMapper.GetQueriesTypes()
 // Configurar GraphQL
 builder.Services
     .AddGraphQLServer()
+     // middleware
     .UseField<ValidationMiddleware>()
+    .UseField<NotFoundHandler>()
+    .UseField<DuplicateEntityHandler>()
+    .UseField<InvalidCredentialsHandler>()
+    // tipos
     .AddQueryType(q => q.Name("Query"))
     .AddMutationType(m => m.Name("Mutation"))
     .AddSubscriptionType(s => s.Name("Subscription"))
     .AddInMemorySubscriptions()
-    .AddTypes(types) // añadir tipos
+    .AddTypes(types)
     .AddFiltering()
     .AddSorting()
     .AddProjections()
