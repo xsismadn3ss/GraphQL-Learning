@@ -2,17 +2,23 @@
 using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
 using GraphQL_Learning.Service;
+using HotChocolate.Subscriptions;
 
 namespace GraphQL_Learning.Mutation
 {
     [ExtendObjectType("Mutation")]
     public class AuthorMutation
     {
-        public Task<Author> AddAuthor(AddAuthorInput input, [Service] AuthorService authorService)
+        public async Task<Author> AddAuthor(
+            AddAuthorInput input, 
+            [Service] AuthorService authorService,
+            [Service] ITopicEventSender eventSender)
         {
             try
             {
-                return authorService.AddAuthorAsync(input);
+                var newAuthor = await authorService.AddAuthorAsync(input);
+                await eventSender.SendAsync("onAuthorAdded", newAuthor);
+                return newAuthor;
             }
             catch (DuplicateEntityException duplicateEx)
             {
@@ -24,11 +30,16 @@ namespace GraphQL_Learning.Mutation
             }
         }
 
-        public async Task<Author?> UpdateAuthor(UpdateAuthorInput input, [Service] AuthorService authorService)
+        public async Task<Author?> UpdateAuthor(
+            UpdateAuthorInput input, 
+            [Service] AuthorService authorService,
+            [Service] ITopicEventSender eventSender)
         {
             try
             {
-                return await authorService.UpdateAuthorAsync(input);
+                var author = await authorService.UpdateAuthorAsync(input);
+                await eventSender.SendAsync("onAuthorUpdated", author);
+                return author;
             }
             catch (DuplicateEntityException duplicateEx)
             {
