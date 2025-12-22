@@ -2,6 +2,7 @@ using GraphQL_Learning.Models;
 using GraphQL_Learning.Services;
 using Microsoft.EntityFrameworkCore;
 using GraphQL_Learning.Middleware;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ foreach (var type in TypesMapper.GetServiceTypes())
 {
     builder.Services.AddScoped(type);
 }
+builder.Services.AddScoped<IPasswordHasher<string>, PasswordHasher<string>>();
 
 // Configurar Db Context
 builder.Services.AddDbContext<AppDbContext>(options =>
