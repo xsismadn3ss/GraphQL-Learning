@@ -53,6 +53,8 @@ builder.Services
     .UseField<ValidationMiddleware>()
     .AddQueryType(q => q.Name("Query"))
     .AddMutationType(m => m.Name("Mutation"))
+    .AddSubscriptionType(s => s.Name("Subscription"))
+    .AddInMemorySubscriptions()
     .AddTypes(types)
     .AddFiltering()
     .AddSorting()
@@ -60,6 +62,8 @@ builder.Services
     .ModifyRequestOptions(options => options.IncludeExceptionDetails = isDevelopmnet);
 
 var app = builder.Build();
+
+app.UseWebSockets();
 
 app.MapGraphQL().WithOptions(new()
 {
