@@ -2,6 +2,7 @@
 using GraphQL_Learning.Models;
 using GraphQL_Learning.Models.Input;
 using GraphQL_Learning.Services;
+using HotChocolate.Authorization;
 using HotChocolate.Subscriptions;
 
 namespace GraphQL_Learning.Mutations
@@ -28,6 +29,7 @@ namespace GraphQL_Learning.Mutations
             return newBook;
         }
 
+        [Authorize(Roles = new[] {"ADMIN", "SUPERVISOR"})]
         public async Task<Book?> UpdateBook(
             UpdateBookInput input,
             [Service] BookService bookService,
