@@ -1,8 +1,11 @@
+using GraphQL_Learning.Middleware;
 using GraphQL_Learning.Models;
 using GraphQL_Learning.Services;
-using Microsoft.EntityFrameworkCore;
-using GraphQL_Learning.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,7 @@ var isDevelopmnet = builder.Environment.IsDevelopment();
 // Obtener cadena de conexion
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Agregar servicios al contenedor.
+// #### Agregar servicios al contenedor. ####
 
 // registrar servicios dinamicamente
 foreach (var type in TypesMapper.GetServiceTypes())
@@ -28,6 +31,34 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString),
     ServiceLifetime.Scoped);
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+        options.Events = new JwtBearerEvents()
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("auth-token"))
+                {
+                    context.Token = context.Request.Cookies["auth-token"];
+                }
+                return Task.CompletedTask;
+            }
+        };
+    });
+builder.Services.AddAuthorization();
 
 // Obtener tipos GraphQL dinamicamente
 Type[] types = [..TypesMapper.GetQueriesTypes()
@@ -35,9 +66,10 @@ Type[] types = [..TypesMapper.GetQueriesTypes()
     .Union(TypesMapper.GetSubscriptionsTypes()))];
 
 
-// Configurar GraphQL
+// #### Configurar GraphQL ####
 builder.Services
     .AddGraphQLServer()
+    .AddAuthorization()
      // middleware
     .UseField<ValidationMiddleware>()
     .UseField<NotFoundHandler>()
@@ -58,6 +90,8 @@ builder.Services
 var app = builder.Build();
 
 app.UseWebSockets();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGraphQL().WithOptions(new()
 {
