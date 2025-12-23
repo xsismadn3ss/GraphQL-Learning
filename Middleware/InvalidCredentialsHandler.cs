@@ -3,7 +3,7 @@ using System.Security.Authentication;
 
 namespace GraphQL_Learning.Middleware
 {
-    public class InvalidCredentialsHandler
+    public class InvalidCredentialsHandler: IGraphMiddleware
     {
         private readonly FieldDelegate _next;
 

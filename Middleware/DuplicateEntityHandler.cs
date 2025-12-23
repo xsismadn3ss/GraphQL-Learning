@@ -3,7 +3,7 @@ using HotChocolate.Resolvers;
 
 namespace GraphQL_Learning.Middleware
 {
-    public class DuplicateEntityHandler
+    public class DuplicateEntityHandler: IGraphMiddleware
     {
         private readonly FieldDelegate _next;
 
