@@ -43,6 +43,7 @@ builder.Services
     .UseField<NotFoundHandler>()
     .UseField<DuplicateEntityHandler>()
     .UseField<InvalidCredentialsHandler>()
+    .UseField<InvalidOperationHandler>()
     // tipos
     .AddQueryType(q => q.Name("Query"))
     .AddMutationType(m => m.Name("Mutation"))
