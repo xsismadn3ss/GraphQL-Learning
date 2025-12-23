@@ -13,9 +13,15 @@ namespace GraphQL_Learning.Services
             _config = config;
         }
 
+        private string GetKey()
+        {
+            return _config["Jwt:Key"]
+                ?? throw new InvalidOperationException("Jwt:key no está configurado");
+        }
+
         public string GenerateToken(string username, string role)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetKey()));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -38,7 +44,8 @@ namespace GraphQL_Learning.Services
         public ClaimsPrincipal? ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+            
+            var key = Encoding.UTF8.GetBytes(GetKey());
 
             try
             {
