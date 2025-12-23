@@ -43,7 +43,7 @@ namespace GraphQL_Learning.Services
 
             // generar token
             var token = _jwtService.GenerateToken(user.Username, user.Role.Name);
-            return new CredentialsAuthOutput
+            return new CredentialsAuthOutput()
             {
                 Username = user.Username,
                 AuthToken = token
@@ -53,14 +53,15 @@ namespace GraphQL_Learning.Services
         public async Task<CredentialsAuthOutput> RegisterAsync(RegisterAuthInput input)
         {
             // validar si ya existe un usuario con mismo email o username
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == input.Username || u.Email == u.Email);
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == input.Username || u.Email == input.Email);
             if (existingUser?.Username == input.Username) throw new DuplicateEntityException("El nombre de usuario ya esta ocupado");
             if (existingUser?.Email == input.Email) throw new DuplicateEntityException("El email ya esta ocupado");
 
             // guardar usuario
             User user = new()
             {
-                Name = input.Username,
+                Name = input.Name,
+                Username = input.Username,
                 Email = input.Email,
                 Password = _passwordHasher.HashPassword(null, input.Password),
                 RoleId = 1
@@ -69,12 +70,14 @@ namespace GraphQL_Learning.Services
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            var token = _jwtService.GenerateToken(user.Username, user.Role.Name);
-            return new CredentialsAuthOutput
+            var role = await _context.Roles.FindAsync(1) ?? throw new NotFoundException("Role not found");
+            var token = _jwtService.GenerateToken(user.Username, role.Name);
+            CredentialsAuthOutput credentials = new()
             {
                 Username = user.Username,
                 AuthToken = token
             };
+            return credentials;
         }
     }
 }
