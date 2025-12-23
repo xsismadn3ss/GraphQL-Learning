@@ -31,14 +31,14 @@ namespace GraphQL_Learning.Services
             {
                 user = await _context.Users.FirstOrDefaultAsync(u => u.Email == input.Email);
             }
-            else
+            else if(string.IsNullOrEmpty(input.Username) && string.IsNullOrEmpty(input.Email))
             {
                 throw new InvalidOperationException("No es permitido ingresar email y username al mismo tiempo. Inicia sesión solo con email o username");
             }
             if (user == null) throw new NotFoundException("User not found");
 
             // validar password
-            var result = _passwordHasher.VerifyHashedPassword(null, user.Password, input.Password);
+            var result = _passwordHasher.VerifyHashedPassword(user.Username, user.Password, input.Password);
             if (result == PasswordVerificationResult.Failed) throw new InvalidCredentialsException("Contraseña incorrecta");
 
             // generar token
@@ -63,7 +63,7 @@ namespace GraphQL_Learning.Services
                 Name = input.Name,
                 Username = input.Username,
                 Email = input.Email,
-                Password = _passwordHasher.HashPassword(null, input.Password),
+                Password = _passwordHasher.HashPassword(input.Username, input.Password),
                 RoleId = 1
             };
 
