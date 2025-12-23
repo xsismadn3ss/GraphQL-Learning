@@ -10,28 +10,17 @@ namespace GraphQL_Learning.Mutation
     public class AuthorMutation
     {
         public async Task<Author> AddAuthor(
-            AddAuthorInput input, 
+            AddAuthorInput input,
             [Service] AuthorService authorService,
             [Service] ITopicEventSender eventSender)
         {
-            try
-            {
-                var newAuthor = await authorService.AddAuthorAsync(input);
-                await eventSender.SendAsync("onAuthorAdded", newAuthor);
-                return newAuthor;
-            }
-            catch (DuplicateEntityException duplicateEx)
-            {
-                throw new GraphQLException(ErrorBuilder.New()
-                    .SetMessage(duplicateEx.Message)
-                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
-                    .SetExtension("timestamp", DateTime.Now)
-                    .Build());
-            }
+            var newAuthor = await authorService.AddAuthorAsync(input);
+            await eventSender.SendAsync("onAuthorAdded", newAuthor);
+            return newAuthor;
         }
 
         public async Task<Author?> UpdateAuthor(
-            UpdateAuthorInput input, 
+            UpdateAuthorInput input,
             [Service] AuthorService authorService,
             [Service] ITopicEventSender eventSender)
         {

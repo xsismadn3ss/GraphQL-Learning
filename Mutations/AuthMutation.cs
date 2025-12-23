@@ -11,5 +11,10 @@ namespace GraphQL_Learning.Mutations
             LoginAuthInput input,
             [Service] AuthService authService)
                => await authService.LoginAsync(input);
+
+        public async Task<CredentialsAuthOutput> Register(
+            RegisterAuthInput input,
+            [Service] AuthService authService)
+            => await authService.RegisterAsync(input);
     }
 }

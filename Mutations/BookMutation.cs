@@ -21,26 +21,16 @@ namespace GraphQL_Learning.Mutations
                     .SetCode("AUTHOR_NOT_FOUND_ERROR")
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
-            try
-            {
-                var newBook = await bookService.AddBookAsync(input);
-                await eventSender.SendAsync("onBookAdded", newBook);
-                await eventSender.SendAsync($"onBookAdded_{input.AuthorId}", newBook);
-                return newBook;
-            }
-            catch (DuplicateEntityException duplicateEx)
-            {
-                throw new GraphQLException(ErrorBuilder.New()
-                    .SetMessage(duplicateEx.Message)
-                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
-                    .SetExtension("timestamp", DateTime.Now)
-                    .Build());
-            }
+
+            var newBook = await bookService.AddBookAsync(input);
+            await eventSender.SendAsync("onBookAdded", newBook);
+            await eventSender.SendAsync($"onBookAdded_{input.AuthorId}", newBook);
+            return newBook;
         }
 
         public async Task<Book?> UpdateBook(
-            UpdateBookInput input, 
-            [Service] BookService bookService, 
+            UpdateBookInput input,
+            [Service] BookService bookService,
             [Service] AuthorService authorService,
             [Service] ITopicEventSender eventSender)
         {
@@ -53,29 +43,11 @@ namespace GraphQL_Learning.Mutations
                     .SetExtension("timestamp", DateTime.Now)
                     .Build());
             }
-            try
-            {
-                var book = await bookService.UpdateBookAsync(input);
-                if(book != null) await eventSender.SendAsync("onBookUpdated", book);
-                if(input.AuthorId.HasValue) await eventSender.SendAsync($"onBookUpdated_{input.AuthorId}", book);
-                return book;
-            }
-            catch (DuplicateEntityException duplicateEx)
-            {
-                throw new GraphQLException(ErrorBuilder.New()
-                    .SetMessage(duplicateEx.Message)
-                    .SetCode("UNIQUE_CONSTRAINT_ERROR")
-                    .SetExtension("timestamp", DateTime.Now)
-                    .Build());
-            }
-            catch (NotFoundException notFoundEx)
-            {
-                throw new GraphQLException(ErrorBuilder.New()
-                    .SetMessage(notFoundEx.Message)
-                    .SetCode("BOOK_NOT_FOUND_ERROR")
-                    .SetExtension("timestamp", DateTime.Now)
-                    .Build());
-            }
+            var book = await bookService.UpdateBookAsync(input);
+            if (book != null) await eventSender.SendAsync("onBookUpdated", book);
+            if (input.AuthorId.HasValue) await eventSender.SendAsync($"onBookUpdated_{input.AuthorId}", book);
+            return book;
+
         }
 
         public Task<bool> DeleteBook(int id, [Service] BookService bookService)
