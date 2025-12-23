@@ -3,7 +3,7 @@ using HotChocolate.Resolvers;
 
 namespace GraphQL_Learning.Middleware
 {
-    public class NotFoundHandler
+    public class NotFoundHandler: IGraphMiddleware
     {
         private readonly FieldDelegate _next;
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GraphQL_Learning.Middleware
 {
-    public class ValidationMiddleware
+    public class ValidationMiddleware: IGraphMiddleware
     {
         private readonly FieldDelegate _next;
 
