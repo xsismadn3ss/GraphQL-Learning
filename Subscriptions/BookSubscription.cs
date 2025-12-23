@@ -1,7 +1,9 @@
 ﻿using GraphQL_Learning.Models;
+using HotChocolate.Authorization;
 
 namespace GraphQL_Learning.Subscriptions
 {
+    [Authorize(Roles = new[] {"ADMIN", "SUPERVISOR"})]
     [ExtendObjectType("Subscription")]
     public class BookSubscription
     {
